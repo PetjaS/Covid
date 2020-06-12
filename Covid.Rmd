@@ -3,6 +3,7 @@ title: "Tartuntatilastot THL:n Sampo-tietokannasta"
 author: "Sjö, P."
 date: "12 6 2020"
 output: 
+  github_document:
   html_document: 
     toc: true
     toc_float: true
