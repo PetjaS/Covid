@@ -1,0 +1,115 @@
+---
+title: "Tartuntatilastot THL:n Sampo-tietokannasta"
+author: "Sjö, P."
+date: "12 6 2020"
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require(tidyverse)) {install.packages("ggplot2")}
+if (!require(ggplot2)) {install.packages("ggplot2")}
+if (!require(jsonlite)) {install.packages("jsonlite")}
+if (!require(mgcv)) {install.packages("mgcv")}
+if (!require(scales)) {install.packages("scales")}
+
+```
+
+Tämä koodi hakee THL:n ylläpitämästä Sampo-tietokannasta päivitetyt tilastot Uudenmaan koronatapauksista
+
+```{r data, include = FALSE}
+aineisto <- fromJSON("https://sampo.thl.fi/pivot/prod/fi/epirapo/covid19case/fact_epirapo_covid19case.json?column=dateweek2020010120201231-443702L")
+
+#####
+#puretaan kategoriat paloiksi
+
+label <- as.data.frame(unlist(aineisto$dataset$dimension$dateweek2020010120201231$category$label))
+index <- as.data.frame(unlist(aineisto$dataset$dimension$dateweek2020010120201231$category$index))
+
+#Nimetään palaset
+names(label)<-"label"
+names(index)<-"index"
+
+#Laitetaan rivinumerot sarakkeiksi, jotta nämä saadaan yhteen.
+label<-rownames_to_column(label)
+index<-rownames_to_column(index)
+
+#Yhdistetään
+kategoriat <- index %>% left_join(label,by="rowname")
+
+#otetaan data
+data <- as.data.frame(unlist(aineisto$dataset$value))
+
+#Nimetaan
+names(data)<-"Tapauksien_lkm"
+data<-rownames_to_column(data)
+data$rowname<-as.numeric(data$rowname)
+
+#Yhdistetään muuhun aineistoon
+koronaset <- kategoriat %>% left_join(data,by=c("index"="rowname"))
+
+koronaset$Tapauksien_lkm <- as.numeric(levels(koronaset$Tapauksien_lkm))[koronaset$Tapauksien_lkm]
+koronaset$pvm <- as.Date(koronaset$label)
+koronaset$pvm <- format(koronaset$pvm, format="%d/%m")
+koronaset$pvm <- factor(koronaset$pvm, ordered=T)
+
+tartunnat     <- subset(koronaset, !is.na(Tapauksien_lkm))
+tartunnat$pvm <- factor(tartunnat$pvm, levels = tartunnat$pvm)
+tartunnat$pvm <- as.Date(tartunnat$pvm, format = "%d/%m")
+tartunnat$nro <- as.numeric( tartunnat$pvm - as.Date( "2020-01-29" ), units="days" )
+
+
+```
+
+### Aineiston kuvailu 
+Aineiston tunnusluvut sekä kuvaaja
+
+```{r data descriptives, echo=FALSE}
+#Uudenmaan tartunnat alkaen ensimmäisen tapauksen todennuksesta
+summary(tartunnat$Tapauksien_lkm)
+
+#Kuvaaja päiväkohtaisista uusista tartunnoista (dataan istutettu yleistetty additiivinen malli)
+ggplot(tartunnat[-1,], aes(x=pvm, y=Tapauksien_lkm))+
+  geom_point()+
+  scale_y_continuous(limit=c(0,NA),oob=squish)+
+  stat_smooth(method = "gam", formula = y ~ s(x, k=27), size = 1)+
+  ggtitle("Päiväkohtaiset uudet tartunnta (yleinen additiivinen malli)")
+
+```
+
+
+Istutetun mallin tulokset
+
+``` {r, echo = FALSE}
+#mallin tulokset
+gam1 <- gam(Tapauksien_lkm ~ s(nro), data=tartunnat)
+summary(gam1)  
+```
+
+### Ennustava malli
+#### Aineiston autokorrelaatio
+
+```{r, echo = FALSE}
+par(mfrow = c(1,2))
+acf(tartunnat$Tapauksien_lkm, plot=TRUE)
+pacf(tartunnat$Tapauksien_lkm, plot=TRUE)
+par(mfrow = c(1,1))
+```
+
+#### Autoregressiivinen malli ja sen ennustus seuraavalle 10 päivälle (95 % luottamusväli)
+
+``` {r, echo = FALSE}
+AR <- arima(tartunnat$Tapauksien_lkm, order=c(1,0,0))
+print(AR)
+predict(AR, n.ahead=10)
+ts.plot(tartunnat$Tapauksien_lkm, xlim = c(0, 150))
+AR_forecast <- predict(AR, n.ahead = 10)$pred
+AR_forecast_se <- predict(AR, n.ahead = 10)$se
+points(AR_forecast, type = "l", col = 2)
+points(AR_forecast - 2*AR_forecast_se, type = "l", col = 2, lty = 2)
+points(AR_forecast + 2*AR_forecast_se, type = "l", col = 2, lty = 2)
+```
