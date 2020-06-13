@@ -1,7 +1,6 @@
 Tartuntatilastot THL:n Sampo-tietokannasta
 ================
 Sjö, P.
-12 6 2020
 
 Tämä koodi hakee THL:n ylläpitämästä Sampo-tietokannasta päivitetyt
 tilastot Uudenmaan koronatapauksista
@@ -49,29 +48,29 @@ Istutetun mallin tulokset
 
     ## 
     ## Call:
-    ## arima(x = tartunnat$Tapauksien_lkm, order = c(1, 0, 0))
+    ## arima(x = tartunnat$Tapauksien_lkm, order = c(6, 0, 0))
     ## 
     ## Coefficients:
-    ##          ar1  intercept
-    ##       0.8615    47.3862
-    ## s.e.  0.0426    15.4840
+    ##          ar1      ar2     ar3     ar4      ar5     ar6  intercept
+    ##       0.6429  -0.1135  0.1006  0.0256  -0.0943  0.3954    29.1223
+    ## s.e.  0.0775   0.0944  0.0939  0.0943   0.0935  0.0762    33.3282
     ## 
-    ## sigma^2 estimated as 682.2:  log likelihood = -642.06,  aic = 1290.12
+    ## sigma^2 estimated as 503.7:  log likelihood = -621.99,  aic = 1259.97
 
     ## $pred
     ## Time Series:
     ## Start = 138 
     ## End = 147 
     ## Frequency = 1 
-    ##  [1]  6.565328 12.221034 17.093147 21.290233 24.905815 28.020461 30.703576
-    ##  [8] 33.014947 35.006079 36.721342
+    ##  [1]  8.796115 11.964750 15.531688 13.845358 10.226747  7.306424  8.939889
+    ##  [8] 10.830633 13.043776 14.016367
     ## 
     ## $se
     ## Time Series:
     ## Start = 138 
     ## End = 147 
     ## Frequency = 1 
-    ##  [1] 26.11972 34.47504 39.55052 42.93089 45.27661 46.94165 48.14006 49.01046
-    ##  [9] 49.64652 50.11332
+    ##  [1] 22.44324 26.68131 27.51669 27.95767 28.30824 28.33462 29.57153 31.53213
+    ##  [9] 32.65931 33.32854
 
 ![](Covid_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
