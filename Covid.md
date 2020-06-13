@@ -3,7 +3,7 @@ Tartuntatilastot THL:n Sampo-tietokannasta
 Sjö, P.
 
 Tämä koodi hakee THL:n ylläpitämästä Sampo-tietokannasta päivitetyt
-tilastot Uudenmaan koronatapauksista
+tilastot Suomen koronatapauksista
 
 ### Aineiston kuvailu
 
