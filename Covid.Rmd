@@ -9,6 +9,14 @@ output:
 
 ---
 
+<style>
+pre {
+  white-space: pre !important;
+  overflow-y: scroll !important;
+  height: 30vh !important;
+}
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 if (!require(tidyverse)) {install.packages("ggplot2")}
@@ -16,7 +24,6 @@ if (!require(ggplot2)) {install.packages("ggplot2")}
 if (!require(jsonlite)) {install.packages("jsonlite")}
 if (!require(mgcv)) {install.packages("mgcv")}
 if (!require(scales)) {install.packages("scales")}
-
 ```
 
 Tämä koodi hakee THL:n ylläpitämästä Sampo-tietokannasta päivitetyt tilastot Uudenmaan koronatapauksista
@@ -68,9 +75,13 @@ tartunnat$nro <- as.numeric( tartunnat$pvm - as.Date( "2020-01-29" ), units="day
 ### Aineiston kuvailu 
 Aineiston tunnusluvut sekä kuvaaja
 
-```{r data descriptives, echo=FALSE}
+```{r data descriptives, echo=FALSE, output_max_height = "300px"}
 #Uudenmaan tartunnat alkaen ensimmäisen tapauksen todennuksesta
 summary(tartunnat$Tapauksien_lkm)
+
+#Päiväkohtaiset tartunnat
+print(select(tartunnat, c(pvm, Tapauksien_lkm)), row.names = FALSE)
+
 
 #Kuvaaja päiväkohtaisista uusista tartunnoista (dataan istutettu yleistetty additiivinen malli)
 ggplot(tartunnat[-1,], aes(x=pvm, y=Tapauksien_lkm))+
