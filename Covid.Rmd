@@ -9,14 +9,6 @@ output:
 
 ---
 
-<style>
-pre {
-  white-space: pre !important;
-  overflow-y: scroll !important;
-  height: 30vh !important;
-}
-</style>
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 if (!require(tidyverse)) {install.packages("ggplot2")}
@@ -75,12 +67,13 @@ tartunnat$nro <- as.numeric( tartunnat$pvm - as.Date( "2020-01-29" ), units="day
 ### Aineiston kuvailu 
 Aineiston tunnusluvut sekä kuvaaja
 
-```{r data descriptives, echo=FALSE, output_max_height = "300px"}
+```{r, echo = FALSE}
 #Uudenmaan tartunnat alkaen ensimmäisen tapauksen todennuksesta
 summary(tartunnat$Tapauksien_lkm)
-
+```
+```{r data descriptives, echo=FALSE,  attr.output='style="max-height: 200px;"'}
 #Päiväkohtaiset tartunnat
-print(select(tartunnat, c(pvm, Tapauksien_lkm)), row.names = FALSE)
+#print(select(tartunnat, c(pvm, Tapauksien_lkm)), row.names = FALSE)
 
 
 #Kuvaaja päiväkohtaisista uusista tartunnoista (dataan istutettu yleistetty additiivinen malli)
@@ -104,7 +97,7 @@ summary(gam1)
 ### Ennustava malli
 #### Aineiston autokorrelaatio
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.width= 10}
 par(mfrow = c(1,2))
 acf(tartunnat$Tapauksien_lkm, plot=TRUE)
 pacf(tartunnat$Tapauksien_lkm, plot=TRUE)
